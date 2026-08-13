@@ -1,0 +1,23 @@
+import type { Model } from "./types";
+import { ModelProvider } from "./types";
+import { DiamondIcon } from "lucide-react";
+import React from "react";
+import { OpenAI } from "@/components/svgs/openai";
+import { StarFourIcon } from "@phosphor-icons/react/dist/ssr";
+import { Anthrophic } from "@/components/svgs/anthropic";
+import { OpenRouter } from "@/components/svgs/openrouter";
+
+export function getModelProviderIcon(model: Model): React.ReactNode {
+  switch (model.provider) {
+    case ModelProvider.OPENAI:
+      return <OpenAI className="text-foreground h-4 w-4" />; // OpenAI
+    case ModelProvider.GOOGLE:
+      return <StarFourIcon className="h-4 w-4 text-blue-500" />; // Google
+    case ModelProvider.ANTHROPIC:
+      return <Anthrophic className="h-4 w-4 text-orange-100" />; // Anthropic Claude
+    case ModelProvider.OPENROUTER:
+      return <OpenRouter className="h-4 w-4 text-orange-500" />; // OpenRouter
+    default:
+      return <DiamondIcon className="h-4 w-4 text-gray-500" />; // Default
+  }
+}
