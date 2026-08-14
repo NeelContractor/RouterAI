@@ -95,8 +95,8 @@ NEXTAUTH_URL=           # Auth URL, e.g. http://localhost:3000
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
-# Cloudflare Turnstile ( Optional )
-TURNSTILE_SITE_KEY=
+# Cloudflare Turnstile ( Required )
+TURNSTILE_SITE_KEY=  # https://dash.cloudflare.com/?to=%2F%3Aaccount%2Fturnstile
 NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 TURNSTILE_SITE_SECRET=
 
@@ -105,7 +105,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 
-# Upstash Redis ( Optional - used for rate limiting)
+# Upstash Redis ( Optional - used for rate limiting )
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 
@@ -136,6 +136,44 @@ Run the development server:
 bun dev
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Running with Docker (Recommended)
+
+The whole app (Next.js + PostgreSQL) is containerized. A single command builds the image, starts the database, applies migrations, and serves the site.
+
+**First run / after code or `.env` changes:**
+
+```bash
+docker compose up --build
+```
+
+**Subsequent runs (no code changes):**
+
+```bash
+docker compose up
+```
+
+Then open [http://localhost:3000](http://localhost:3000).
+
+| Action | Command |
+|---|---|
+| Run in background | `docker compose up -d` |
+| Stop everything | `docker compose down` |
+| Stop and delete the database | `docker compose down -v` |
+| View app logs | `docker compose logs -f app` |
+| Rebuild after changes | `docker compose up --build` |
+| Full reset (fresh DB) | `docker compose down -v && docker compose up --build` |
+
+**How it works:**
+
+- The `app` service builds the Next.js image, waits for PostgreSQL to be healthy, applies migrations (`prisma migrate deploy`), then starts the server on port `3000`.
+- The `db` service runs PostgreSQL on port `5432` with a persistent volume.
+- Environment variables are loaded from your local `.env` file at both build and runtime:
+  - **`NEXT_PUBLIC_*` variables** are inlined into the client bundle during the Docker build — edit `.env` and rebuild (`docker compose up --build`) for changes to take effect.
+  - **Server-side variables** are read at runtime from `.env` — only the app container needs to restart.
+- Empty/unset variables fall back to safe placeholders during the build, so you don't need every key configured to build or start the app.
+
+**Important:** `.env` is gitignored and excluded from the Docker build context — never commit it. It holds your real secrets (Google, Stripe, OpenRouter, etc.).
 
 ## Contribute
 

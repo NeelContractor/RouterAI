@@ -1,12 +1,25 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:password@db:5432/t3dotgg}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+        STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_dummy}
+        STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_dummy}
+        OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-dummy}
+        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy}
+        GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
+        MAIL_APP_USER: ${MAIL_APP_USER:-dummy}
+        MAIL_APP_PASSWORD: ${MAIL_APP_PASSWORD:-dummy}
+        UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-https://dummy.upstash.io}
+        UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-dummy}
+        WEBHOOK_URL: ${WEBHOOK_URL:-https://dummy.webhook.url}
     ports:
       - "3000:3000"
+    command: sh -c "bunx prisma migrate deploy && bun run start"
     env_file:
       - .env
     environment:
@@ -14,7 +27,8 @@ services:
       - NODE_ENV=production
       - AUTH_TRUST_HOST=true
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -30,6 +44,11 @@ services:
       - postgres_data:/var/lib/postgresql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 networks:
   app-network:

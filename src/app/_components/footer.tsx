@@ -21,7 +21,7 @@ import {
           </div>
   
          <Link
-            href="https://github.com/Praashh/RouterAI"
+            href="https://github.com/NeelContractor/RouterAI"
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"

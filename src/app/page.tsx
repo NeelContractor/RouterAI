@@ -6,6 +6,8 @@ import TestimonialsSection from "./_components/TestingMonials";
 import { Feedback } from "./_components/Feedback";
 import { Footer } from "./_components/footer";
 import { GetStarted } from "./_components/get-started";
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   return (
     <HydrateClient>
